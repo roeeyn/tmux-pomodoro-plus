@@ -94,7 +94,7 @@ pomodoro_cancel () {
 notify () {
     local title=$1
     local message=$2
-    osascript -e 'display notification "'"$title"'" with title "'"$message"'"'
+    osascript -e 'display notification "'"$title"'" with title "'"$message"'" subtitle "TBD" sound name "Glass"'
 }
 
 pomodoro_status () {
