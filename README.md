@@ -2,6 +2,14 @@
 
 Incorporate the [Pomodoro technique](https://en.wikipedia.org/wiki/Pomodoro_Technique) into your tmux setup.
 
+## Prerequisites
+
+This needs `pulseaudio` for the notifications. You can install it with Homebrew:
+
+```shell
+brew install pulseaudio
+```
+
 ## Features
 
 - Toggle Pomodoro timer on/off and see the countdown in the status bar

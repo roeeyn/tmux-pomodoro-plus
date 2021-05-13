@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-
-#==============================================================================#
-#--------------------------------     TODOS     -------------------------------#
-#==============================================================================#
-
-# - Notify when the rest Start and finish too (maybe comparing if the difference is zero)
-
 ################################# SET VARIABLES ################################
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -46,7 +39,8 @@ write_pomodoro_start_time () {
 }
 
 write_pomodoro_state () {
-  echo "1" > $POMODORO_STATE_FILE
+  local NEW_STATE=$1
+  echo "$NEW_STATE" > $POMODORO_STATE_FILE
 }
 
 read_pomodoro_state () {
@@ -101,7 +95,9 @@ pomodoro_cancel () {
 notify () {
     local title=$1
     local message=$2
-    osascript -e 'display notification "'"$title"'" with title "'"$message"'" subtitle "TBD" sound name "Glass"'
+    local subtitle=$3
+    paplay "$CURRENT_DIR/doorbell.ogg" & osascript -e 'display notification "'"$message"'" with title "'"$title"'" subtitle "'"$subtitle"'" sound name "Glass"'
+    
 }
 
 pomodoro_status () {
@@ -117,13 +113,18 @@ pomodoro_status () {
     then
         pomodoro_start_time=-1
         echo ""
+        if [ $has_pomodoro_finished -eq 1 ]
+        then
+          notify "Pomodoro" "Finished Break" "You're doing great! Start a new pomodoro."
+          write_pomodoro_state "2"
+        fi
     elif [ $difference -ge $(get_pomodoro_duration) ]
     then
         if [ $has_pomodoro_finished -eq 0 ]
         then
-          notify "Pomodoro" "Finished Pomodoro"
+          notify "Pomodoro" "Finished Pomodoro" "Break time! Good job!"
         fi
-        write_pomodoro_state
+        write_pomodoro_state "1"
         printf "$(get_tmux_option "$pomodoro_complete" "$pomodoro_complete_default")$(( -($difference - $(get_pomodoro_duration) - $(get_pomodoro_break)) )) "
     else
         printf "$(get_tmux_option "$pomodoro_on" "$pomodoro_on_default")$(( $(get_pomodoro_duration) - $difference )) "
@@ -137,11 +138,11 @@ main () {
     if [ "$cmd" = "start" ]
     then
         pomodoro_start
-        notify "Pomodoro" "Starting Pomodoro"
+        notify "Pomodoro" "Starting Pomodoro" "Show time!"
     elif [ "$cmd" = "cancel" ]
     then
         pomodoro_cancel
-        notify "Pomodoro" "Pomodoro Cancelled"
+        notify "Pomodoro" "Pomodoro Cancelled" "Don't worry, you're doing great!"
     else
         pomodoro_status
     fi
